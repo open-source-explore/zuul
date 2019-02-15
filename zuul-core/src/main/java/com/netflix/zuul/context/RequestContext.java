@@ -15,24 +15,9 @@
  */
 package com.netflix.zuul.context;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-
-import java.io.InputStream;
-import java.io.NotSerializableException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.netflix.util.Pair;
+import com.netflix.zuul.constants.ZuulHeaders;
+import com.netflix.zuul.util.DeepCopy;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -40,19 +25,31 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netflix.util.Pair;
-import com.netflix.zuul.constants.ZuulHeaders;
-import com.netflix.zuul.util.DeepCopy;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.io.NotSerializableException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
 
 /**
+ * RequestContext 持有HttpServletRequest 和 HttpServletResponse ,封装了一层为什么呢
+ * ZuulFilter访问和共享状态信息和数据
+ * RequestContext使用ThreadLocal
  * The Request Context holds request, response,  state information and data for ZuulFilters to access and share.
  * The RequestContext lives for the duration of the request and is ThreadLocal.
  * extensions of RequestContext can be substituted by setting the contextClass.
  * Most methods here are convenience wrapper methods; the RequestContext is an extension of a ConcurrentHashMap
  *
  * @author Mikey Cohen
- *         Date: 10/13/11
- *         Time: 10:21 AM
+ * Date: 10/13/11
+ * Time: 10:21 AM
  */
 public class RequestContext extends ConcurrentHashMap<String, Object> {
 
@@ -62,6 +59,9 @@ public class RequestContext extends ConcurrentHashMap<String, Object> {
 
     private static RequestContext testContext = null;
 
+    /**
+     * 使用ThreadLocal持有RequestContext
+     */
     protected static final ThreadLocal<? extends RequestContext> threadLocal = new ThreadLocal<RequestContext>() {
         @Override
         protected RequestContext initialValue() {
@@ -298,15 +298,15 @@ public class RequestContext extends ConcurrentHashMap<String, Object> {
     /**
      * appends filter name and status to the filter execution history for the
      * current request
-     * 
+     *
      * @param name   filter name
      * @param status execution status
      * @param time   execution time in milliseconds
      */
     public void addFilterExecutionSummary(String name, String status, long time) {
-            StringBuilder sb = getFilterExecutionSummary();
-            if (sb.length() > 0) sb.append(", ");
-            sb.append(name).append('[').append(status).append(']').append('[').append(time).append("ms]");
+        StringBuilder sb = getFilterExecutionSummary();
+        if (sb.length() > 0) sb.append(", ");
+        sb.append(name).append('[').append(status).append(']').append('[').append(time).append("ms]");
     }
 
     /**
@@ -318,7 +318,7 @@ public class RequestContext extends ConcurrentHashMap<String, Object> {
         }
         return (StringBuilder) get("executedFilters");
     }
-    
+
     /**
      * sets the "responseBody" value as a String. This is the response sent back to the client.
      *
@@ -567,7 +567,7 @@ public class RequestContext extends ConcurrentHashMap<String, Object> {
     }
 
     /**
-     * @return Map<String, List<String>>  of the request Query Parameters
+     * @return Map<String               ,                               List               <               String>>  of the request Query Parameters
      */
     public Map<String, List<String>> getRequestQueryParams() {
         return (Map<String, List<String>>) get("requestQueryParams");

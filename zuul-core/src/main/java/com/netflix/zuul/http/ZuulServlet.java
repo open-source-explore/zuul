@@ -38,11 +38,12 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
+ * zuul核心类ZuulServlet 用户初始化和协调ZuulFilter执行
  * Core Zuul servlet which intializes and orchestrates zuulFilter execution
  *
  * @author Mikey Cohen
- *         Date: 12/23/11
- *         Time: 10:44 AM
+ * Date: 12/23/11
+ * Time: 10:44 AM
  */
 public class ZuulServlet extends HttpServlet {
 
@@ -60,6 +61,14 @@ public class ZuulServlet extends HttpServlet {
         zuulRunner = new ZuulRunner(bufferReqs);
     }
 
+    /**
+     * 在核心的ZuulServlet类中的service中执行事前、事中、事后的路由Filter
+     *
+     * @param servletRequest
+     * @param servletResponse
+     * @throws ServletException
+     * @throws IOException
+     */
     @Override
     public void service(javax.servlet.ServletRequest servletRequest, javax.servlet.ServletResponse servletResponse) throws ServletException, IOException {
         try {

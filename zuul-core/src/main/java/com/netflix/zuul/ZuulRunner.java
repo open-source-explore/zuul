@@ -35,6 +35,7 @@ import static org.mockito.Mockito.*;
 
 
 /**
+ * 初始化Servlet 请求和响应 封装在RequestContext
  * This class initializes servlet requests and responses into the RequestContext and wraps the FilterProcessor calls
  * to preRoute(), route(),  postRoute(), and error() methods
  *
@@ -53,7 +54,6 @@ public class ZuulRunner {
     }
 
     /**
-     *
      * @param bufferRequests - whether to wrap the ServletRequest in HttpServletRequestWrapper and buffer the body.
      */
     public ZuulRunner(boolean bufferRequests) {
