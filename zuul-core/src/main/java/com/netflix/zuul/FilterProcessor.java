@@ -15,6 +15,7 @@
  */
 package com.netflix.zuul;
 
+import com.netflix.servo.monitor.DynamicCounter;
 import com.netflix.zuul.context.Debug;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
@@ -32,8 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-import com.netflix.servo.monitor.DynamicCounter;
-
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -41,8 +40,8 @@ import static org.mockito.Mockito.*;
  * This the the core class to execute filters.
  *
  * @author Mikey Cohen
- *         Date: 10/24/11
- *         Time: 12:47 PM
+ * Date: 10/24/11
+ * Time: 12:47 PM
  */
 public class FilterProcessor {
 
@@ -124,7 +123,8 @@ public class FilterProcessor {
     }
 
     /**
-     * runs all "pre" filters. These filters are run before routing to the orgin.
+     * 运行所有的前置filter，这些filter运行在真正路由执行之前
+     * runs all "pre" filters. These filters are run before routing to the origin.
      *
      * @throws ZuulException
      */
@@ -146,6 +146,7 @@ public class FilterProcessor {
      * @throws Throwable throws up an arbitrary exception
      */
     public Object runFilters(String sType) throws Throwable {
+        //是否调试
         if (RequestContext.getCurrentContext().debugRouting()) {
             Debug.addRoutingDebug("Invoking {" + sType + "} type filters");
         }
@@ -180,7 +181,7 @@ public class FilterProcessor {
         try {
             long ltime = System.currentTimeMillis();
             filterName = filter.getClass().getSimpleName();
-            
+
             RequestContext copy = null;
             Object o = null;
             Throwable t = null;
@@ -189,7 +190,7 @@ public class FilterProcessor {
                 Debug.addRoutingDebug("Filter " + filter.filterType() + " " + filter.filterOrder() + " " + filterName);
                 copy = ctx.copy();
             }
-            
+
             ZuulFilterResult result = filter.runFilter();
             ExecutionStatus s = result.getStatus();
             execTime = System.currentTimeMillis() - ltime;
@@ -210,7 +211,7 @@ public class FilterProcessor {
                 default:
                     break;
             }
-            
+
             if (t != null) throw t;
 
             usageNotifier.notify(filter, s);

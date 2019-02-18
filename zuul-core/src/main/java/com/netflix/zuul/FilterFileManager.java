@@ -158,7 +158,7 @@ public class FilterFileManager {
     }
 
     /**
-     * puts files into the FilterLoader. The FilterLoader will only addd new or changed filters
+     * puts files into the FilterLoader. The FilterLoader will only add new or changed filters
      *
      * @param aFiles a List<File>
      * @throws IOException
